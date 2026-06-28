@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | MCFA Rewards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">🎁 MCFA Rewards</div>
+</header>
+
+<section class="hero">
+    <div class="login-card">
+        <h2>Create Account</h2>
+        <p class="small-text">Create your account to start claiming exclusive rewards.</p>
+
+        <div id="error-msg" style="color:#ff4d4d;margin-bottom:12px;display:none;font-size:14px;"></div>
+        <div id="success-msg" style="color:#4ade80;margin-bottom:12px;display:none;font-size:14px;"></div>
+
+        <form id="register-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+            <button type="submit">Create Account</button>
+        </form>
+
+        <div class="divider"><span>Already have an account?</span></div>
+        <a href="index.html" class="register-btn">Login</a>
+        <p class="small-text">📧 After registering, click the verification link sent to your email.</p>
+    </div>
+</section>
+
+<footer>© 2026 MCFA Rewards • All Rights Reserved</footer>
+
+<script>
+document.getElementById('register-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm-password').value;
+    const errorMsg = document.getElementById('error-msg');
+    const successMsg = document.getElementById('success-msg');
+
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+
+    if (username.length < 3) {
+        errorMsg.textContent = '❌ Username must be at least 3 characters.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    if (password.length < 6) {
+        errorMsg.textContent = '❌ Password must be at least 6 characters.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    if (password !== confirm) {
+        errorMsg.textContent = '❌ Passwords do not match.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('mcfa_users') || '{}');
+
+    if (users[email]) {
+        errorMsg.textContent = '❌ An account with this email already exists.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    // Generate a verification token
+    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+    users[email] = {
+        username,
+        password,
+        verified: false,
+        token,
+        createdAt: Date.now()
+    };
+
+    localStorage.setItem('mcfa_users', JSON.stringify(users));
+
+    // Since we have no real email backend, auto-verify after showing message
+    // In production this would send a real email
+    successMsg.textContent = '✅ Account created! Since this is a demo, click below to verify instantly.';
+    successMsg.style.display = 'block';
+
+    // Add a verify button
+    const verifyBtn = document.createElement('button');
+    verifyBtn.textContent = 'Verify My Account';
+    verifyBtn.style.marginTop = '10px';
+    verifyBtn.onclick = function() {
+        const u = JSON.parse(localStorage.getItem('mcfa_users') || '{}');
+        if (u[email]) {
+            u[email].verified = true;
+            localStorage.setItem('mcfa_users', JSON.stringify(u));
+            successMsg.textContent = '✅ Email verified! You can now login.';
+            verifyBtn.remove();
+            setTimeout(() => window.location.href = 'index.html', 1500);
+        }
+    };
+    document.getElementById('register-form').appendChild(verifyBtn);
+    document.getElementById('register-form').querySelector('button[type=submit]').style.display = 'none';
+});
+</script>
+</body>
+</html>

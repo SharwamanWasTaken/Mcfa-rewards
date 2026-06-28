@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | MCFA Rewards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">🛡️ MCFA Admin</div>
+    <a href="index.html" class="admin-btn">Home</a>
+</header>
+
+<section class="hero">
+    <div class="login-card">
+        <h2>Administrator Login</h2>
+        <p class="small-text">Authorized administrators only.</p>
+
+        <div id="error-msg" style="color:#ff4d4d;margin-bottom:12px;display:none;font-size:14px;"></div>
+
+        <form id="admin-form">
+            <input type="password" id="password" placeholder="Admin Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="small-text">Unauthorized access is prohibited.</p>
+    </div>
+</section>
+
+<footer>© 2026 MCFA Rewards • Admin Panel</footer>
+
+<script>
+if (localStorage.getItem('mcfa_admin') === 'true') {
+    window.location.href = 'admin-dashboard.html';
+}
+
+document.getElementById('admin-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('error-msg');
+
+    if (password === 'Fourdoormorewhores') {
+        localStorage.setItem('mcfa_admin', 'true');
+        window.location.href = 'admin-dashboard.html';
+    } else {
+        errorMsg.textContent = '❌ Incorrect password.';
+        errorMsg.style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | MCFA Rewards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">🛡️ Admin Panel</div>
+    <a href="#" onclick="logout()" class="admin-btn">Logout</a>
+</header>
+
+<section class="hero">
+    <h1>Admin Dashboard</h1>
+
+    <div class="card">
+        <h3>🎁 Generate Reward Codes</h3>
+        <input id="reward" placeholder="Reward name (e.g. Nitro Basic Yearly)">
+        <input id="amount" type="number" placeholder="Amount (e.g. 100)">
+        <button onclick="generate()">Generate Codes</button>
+    </div>
+
+    <div class="card">
+        <h3>📦 View Claims</h3>
+        <button onclick="loadClaims()">View All Claims</button>
+    </div>
+
+    <div class="card">
+        <h3>👥 View Users</h3>
+        <button onclick="loadUsers()">View All Users</button>
+    </div>
+
+    <div class="card">
+        <h3>🗑️ Clear Used Codes</h3>
+        <button onclick="clearCodes()" style="background:#ff4d4d;">Clear Used Codes</button>
+    </div>
+
+    <pre id="output" style="background:#1e293b;padding:20px;border-radius:10px;text-align:left;max-width:700px;width:100%;overflow-x:auto;margin-top:20px;font-size:13px;"></pre>
+</section>
+
+<footer>© 2026 MCFA Rewards • Admin Panel</footer>
+
+<script>
+// Block if not admin
+if (localStorage.getItem('mcfa_admin') !== 'true') {
+    window.location.href = 'admin-login.html';
+}
+
+function logout() {
+    localStorage.removeItem('mcfa_admin');
+    window.location.href = 'admin-login.html';
+}
+
+function generateCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from({length: 4}, () =>
+        Array.from({length: 5}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    ).join('-');
+}
+
+function generate() {
+    const reward = document.getElementById('reward').value.trim();
+    const amount = parseInt(document.getElementById('amount').value);
+    const output = document.getElementById('output');
+
+    if (!reward || !amount || amount < 1) {
+        output.textContent = '❌ Please enter a reward name and amount.';
+        return;
+    }
+
+    const codes = new Set();
+    while (codes.size < amount) codes.add(generateCode());
+
+    // Save codes to localStorage
+    const allCodes = JSON.parse(localStorage.getItem('mcfa_codes') || '{}');
+    if (!allCodes[reward]) allCodes[reward] = [];
+    allCodes[reward].push(...codes);
+    localStorage.setItem('mcfa_codes', JSON.stringify(allCodes));
+
+    output.textContent = `✅ Generated ${amount} codes for "${reward}":\n\n` + [...codes].join('\n');
+}
+
+function loadClaims() {
+    const claims = JSON.parse(localStorage.getItem('mcfa_claims') || '[]');
+    const output = document.getElementById('output');
+    if (!claims.length) {
+        output.textContent = 'No claims yet.';
+        return;
+    }
+    output.textContent = '📦 Claims:\n\n' + claims.map((c, i) =>
+        `${i+1}. ${c.email} — ${c.reward} — Code: ${c.code} — ${new Date(c.claimedAt).toLocaleString()}`
+    ).join('\n');
+}
+
+function loadUsers() {
+    const users = JSON.parse(localStorage.getItem('mcfa_users') || '{}');
+    const output = document.getElementById('output');
+    const list = Object.entries(users);
+    if (!list.length) {
+        output.textContent = 'No users yet.';
+        return;
+    }
+    output.textContent = '👥 Users:\n\n' + list.map(([ email, u], i) =>
+        `${i+1}. ${u.username} — ${email} — Verified: ${u.verified ? '✅' : '❌'}`
+    ).join('\n');
+}
+
+function clearCodes() {
+    if (confirm('Clear all used codes? This cannot be undone.')) {
+        localStorage.removeItem('mcfa_used_codes');
+        document.getElementById('output').textContent = '✅ Used codes cleared.';
+    }
+}
+</script>
+</body>
+</html>

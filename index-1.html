@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCFA Rewards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<header>
+    <div class="logo">🎁 MCFA Rewards</div>
+    <a href="admin-login.html" class="admin-btn">Admin Login</a>
+</header>
+
+<section class="hero">
+
+    <h1>Claim Exclusive Rewards</h1>
+    <p>Create your account, verify your email, and claim amazing rewards using your reward code.</p>
+
+
+
+    <div class="login-card">
+        <h2>Welcome</h2>
+        <div id="error-msg" style="color:#ff4d4d;margin-bottom:12px;display:none;font-size:14px;"></div>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="divider"><span>OR</span></div>
+        <a href="register.html" class="register-btn">Create Account</a>
+        <p class="small-text">By creating an account, you'll receive a verification email before accessing rewards.</p>
+    </div>
+
+</section>
+
+<footer>© 2026 MCFA Rewards • All Rights Reserved</footer>
+
+<script>
+if (localStorage.getItem('mcfa_logged_in') === 'true') {
+    window.location.href = 'dashboard.html';
+}
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('error-msg');
+    const users = JSON.parse(localStorage.getItem('mcfa_users') || '{}');
+
+    if (!users[email]) {
+        errorMsg.textContent = '❌ No account found with this email. Please register first.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    if (users[email].password !== password) {
+        errorMsg.textContent = '❌ Incorrect password. Please try again.';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    if (!users[email].verified) {
+        errorMsg.textContent = '❌ Please verify your email before logging in. Check your inbox!';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    localStorage.setItem('mcfa_logged_in', 'true');
+    localStorage.setItem('mcfa_current_user', email);
+    window.location.href = 'dashboard.html';
+});
+</script>
+</body>
+</html>
